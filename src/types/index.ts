@@ -1,45 +1,23 @@
-import { Request } from "express";
-import { FindOneOptions } from "typeorm";
+import * as TelegramBot from "node-telegram-bot-api";
+import { returnExecution } from "../configs";
+import * as dayjs from "dayjs";
 
-// middleware request
-export type configValidateValueType = {
-  rules: any[];
-  dependent?: string;
-  isDisableKey?: boolean;
-  msg: {
-    [key: string]: string;
-  };
+// telegram bot
+export enum EnumCommand {
+  "help" = "help",
+  "start" = "start",
+}
+
+export type ConfigTypeDate = dayjs.ConfigType;
+export type SendMessageOptions = TelegramBot.SendMessageOptions;
+export type InlineKeyboardButton = TelegramBot.InlineKeyboardButton;
+export type ICommandExecution =
+  | (string | returnExecution)[]
+  | string
+  | returnExecution;
+export type ICommandItemRetrunExecution = {
+  data: ICommandExecution;
+  error?: boolean;
 };
 
-export type variableNode = "body" | "params" | "query";
-
-export type configValidateType = {
-  [P in variableNode]?: {
-    [key: string]: configValidateValueType;
-  };
-};
-
-export type IRequest = Request & {
-  keyStore: any;
-  refreshToken?: string;
-};
-
-type keyOfCustom<K> = keyof K;
-
-type keyCustomValue<K> = {
-  key: keyOfCustom<K>;
-  value: string;
-};
-
-export type CustomWhereExistsMiddleware<T> = keyOfCustom<T> | keyCustomValue<T>;
-
-export type TExistsCustomMiddleware<T> = Omit<FindOneOptions<T>, "where"> & {
-  where?: CustomWhereExistsMiddleware<T>[][] | CustomWhereExistsMiddleware<T>[];
-  msgError?: string;
-  isErrorExist?: boolean;
-};
-
-export type pageAndLimit = {
-  page?: number;
-  limit?: number;
-};
+export type IBotCommand = TelegramBot.BotCommand;
