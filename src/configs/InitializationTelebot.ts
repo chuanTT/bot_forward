@@ -12,51 +12,51 @@ import {
   returnValueCommand,
 } from "../helpers";
 
-// export const botTelegram = new TelegramBot(TOKEN_TELEGRAM, {
-//   polling: true,
-// });
+export const botTelegram = new TelegramBot(TOKEN_TELEGRAM, {
+  polling: true,
+});
 
 // //  send messeage
-// export const sendMessageBot = async (
-//   chatId: TelegramBot.ChatId,
-//   text?: string,
-//   options?: SendMessageOptions
-// ): Promise<TelegramBot.Message | undefined> => {
-//   if (text) {
-//     return await botTelegram.sendMessage(chatId, text || "", {
-//       ...optionDefaultSend,
-//       ...options,
-//     });
-//   }
-// };
+export const sendMessageBot = async (
+  chatId: TelegramBot.ChatId,
+  text?: string,
+  options?: SendMessageOptions
+): Promise<TelegramBot.Message | undefined> => {
+  if (text) {
+    return await botTelegram.sendMessage(chatId, text || "", {
+      ...optionDefaultSend,
+      ...options,
+    });
+  }
+};
 
-// export const sendArrMessageBot = async (
-//   chatId: TelegramBot.ChatId,
-//   arrText?: ICommandExecution,
-//   options: SendMessageOptions = undefined
-// ): Promise<void> => {
-//   if (arrText && Array.isArray(arrText)) {
-//     for (const item of arrText) {
-//       let newText = "";
-//       if (!(typeof item === "string")) {
-//         newText = item?.value;
-//         options = item?.optons;
-//       } else {
-//         newText = item;
-//       }
-//       await sendMessageBot(chatId, newText, options);
-//     }
-//     return;
-//   } else {
-//     let newText = "";
-//     if (!((typeof arrText as string) === "string")) {
-//       newText = (arrText as returnExecution)?.value;
-//     } else {
-//       newText = arrText as string;
-//     }
-//     newText && (await sendMessageBot(chatId, newText, options));
-//   }
-// };
+export const sendArrMessageBot = async (
+  chatId: TelegramBot.ChatId,
+  arrText?: ICommandExecution,
+  options: SendMessageOptions = undefined
+): Promise<void> => {
+  if (arrText && Array.isArray(arrText)) {
+    for (const item of arrText) {
+      let newText = "";
+      if (!(typeof item === "string")) {
+        newText = item?.value;
+        options = item?.optons;
+      } else {
+        newText = item;
+      }
+      await sendMessageBot(chatId, newText, options);
+    }
+    return;
+  } else {
+    let newText = "";
+    if (!((typeof arrText as string) === "string")) {
+      newText = (arrText as returnExecution)?.value;
+    } else {
+      newText = arrText as string;
+    }
+    newText && (await sendMessageBot(chatId, newText, options));
+  }
+};
 
 // export const sendMessageBotHelp = async (chatId: number) => {
 //   return await sendArrMessageBot(chatId, objCommands?.help?.render?.());

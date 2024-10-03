@@ -1,4 +1,4 @@
-import { ARR_VALUE_FORMAT_DATE, KEY_SPLIT, STR_FORMAT } from "../configs";
+import {  KEY_SPLIT } from "../configs";
 import * as dayjs from "dayjs";
 import * as customParseFormat from "dayjs/plugin/customParseFormat";
 import {randomBytes} from "crypto";
@@ -43,16 +43,6 @@ export const removeVietnameseTones = (str: string, toUpperCase = false) => {
   return toUpperCase ? str.toUpperCase() : str;
 };
 
-export const formatDate = (date: dayjs.ConfigType, format = STR_FORMAT) => {
-  return dayjs(date, ARR_VALUE_FORMAT_DATE).format(format);
-};
-
-export const daysCustom = (date?: dayjs.ConfigType) =>
-  dayjs(date, ARR_VALUE_FORMAT_DATE);
-
-export const isValidDate = (date: dayjs.ConfigType) => {
-  return dayjs(date, ARR_VALUE_FORMAT_DATE, true).isValid();
-};
 
 
 export const randUuid = () => {
@@ -60,4 +50,6 @@ export const randUuid = () => {
   const randomPart = randomBytes(8).toString('hex');  // Tạo 8 byte ngẫu nhiên
   return timestamp + randomPart;  // Kết hợp timestamp và random string
 }
+
+export const checkStatusBot = (bot: boolean) => bot ? 1 : 0
 
