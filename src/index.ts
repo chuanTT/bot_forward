@@ -1,18 +1,19 @@
 import app from "./server";
 import {
+  arrTypeValid,
   FIRST_COMMAD,
+  getCache,
   ICommandItem,
+  myCache,
   objCommands,
   PORT,
+  sendMessageBotHelp,
   setAndDelCache,
   TAG_TELE,
 } from "./configs";
 import { ignoreStartHelpFunc, myCommands } from "./helpers";
 import { AppDataSource } from "./data-source";
-import {
-  botTelegram,
-  sendArrMessageBot,
-} from "./configs";
+import { botTelegram, sendArrMessageBot } from "./configs";
 import groupService from "./services/group.service";
 import memberuseService from "./services/memberuse.service";
 
@@ -27,6 +28,9 @@ AppDataSource.initialize()
     botTelegram.on("message", async (msg) => {
       const text = msg.text ?? "";
       const chat = msg.chat;
+      const userId = msg?.from?.id;
+      const commandKey = getCache(userId);
+      const isTypeVaild = !arrTypeValid.includes(chat.type)
 
       if (text.charAt(0) === FIRST_COMMAD) {
         const arrCommand = text?.split(TAG_TELE);
@@ -34,13 +38,20 @@ AppDataSource.initialize()
         const isMathTag = text.indexOf(TAG_TELE);
         const isMathBot = arrCommand?.[1] === botInfo.username;
         const currentCommand = objCommands?.[command] as ICommandItem;
-        const isKey = arrKeysCommands.includes(command);
-        setAndDelCache(msg?.from?.id, command, isKey);
+        const isKey = !!currentCommand?.execution;
+        setAndDelCache(userId, command, isKey);
         if ((isMathBot || isMathTag === -1) && currentCommand) {
           const arrText = await currentCommand.render(msg);
           sendArrMessageBot(chat?.id, arrText);
-          await memberuseService.upsert(msg.from);
-        }
+          return await memberuseService.upsert(msg.from);
+        } 
+        isTypeVaild && sendMessageBotHelp(chat?.id);
+      } else if (commandKey && arrKeysCommands.includes(commandKey)) {
+        const currentCommand = objCommands[commandKey] as ICommandItem;
+        const results = await currentCommand?.execution?.(text, msg);
+        return sendArrMessageBot(chat?.id, results?.data);
+      } else if (isTypeVaild) {
+        sendMessageBotHelp(chat?.id);
       }
     });
 

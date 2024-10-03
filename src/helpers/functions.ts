@@ -1,7 +1,7 @@
-import {  KEY_SPLIT } from "../configs";
+import { KEY_SPLIT } from "../configs";
 import * as dayjs from "dayjs";
 import * as customParseFormat from "dayjs/plugin/customParseFormat";
-import {randomBytes} from "crypto";
+import { randomBytes } from "crypto";
 dayjs.extend(customParseFormat);
 
 export const checkNumber = (num: string | number) => {
@@ -18,7 +18,7 @@ export const splitPagination = (key: string) => {
   const [uuid, action] = key?.split(KEY_SPLIT);
   return {
     action,
-    uuid
+    uuid,
   };
 };
 
@@ -43,13 +43,26 @@ export const removeVietnameseTones = (str: string, toUpperCase = false) => {
   return toUpperCase ? str.toUpperCase() : str;
 };
 
-
-
 export const randUuid = () => {
-  const timestamp = Date.now().toString(36);  // Thời gian hiện tại (millisecond) chuyển sang hệ cơ số 36
-  const randomPart = randomBytes(8).toString('hex');  // Tạo 8 byte ngẫu nhiên
-  return timestamp + randomPart;  // Kết hợp timestamp và random string
-}
+  const timestamp = Date.now().toString(36); // Thời gian hiện tại (millisecond) chuyển sang hệ cơ số 36
+  const randomPart = randomBytes(8).toString("hex"); // Tạo 8 byte ngẫu nhiên
+  return timestamp + randomPart; // Kết hợp timestamp và random string
+};
 
-export const checkStatusBot = (bot: boolean) => bot ? 1 : 0
+export const checkStatusBot = (bot: boolean) => (bot ? 1 : 0);
 
+export const awaitAllFor = async <T, R>(
+  data: T[],
+  callBack:  (item: T, index: number) => Promise<R>
+): Promise<R[]> => {
+  const newData: R[] = [];
+  let i = 0;
+  for (const item of data) {
+    const result = await callBack(item, i)
+    if(result) {
+      newData.push(result);
+    }
+    i++;
+  }
+  return newData;
+};

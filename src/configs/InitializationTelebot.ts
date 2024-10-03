@@ -1,16 +1,7 @@
 import * as TelegramBot from "node-telegram-bot-api";
-import { optionDefaultSend, TAKE, TOKEN_TELEGRAM } from "./constant";
+import { optionDefaultSend, TOKEN_TELEGRAM } from "./constant";
 import { ICommandExecution, SendMessageOptions } from "../types";
-import { ICommandItem, objCommands, returnExecution } from "./telegram";
-import { has } from "lodash";
-import {
-  calculatorLastPage,
-  checkNumber,
-  defaultCommandInputPage,
-  defaultThrowMaxPage,
-  defaultThrowPage,
-  returnValueCommand,
-} from "../helpers";
+import { IObjCommands, objCommands, returnExecution } from "./telegram";
 
 export const botTelegram = new TelegramBot(TOKEN_TELEGRAM, {
   polling: true,
@@ -58,30 +49,12 @@ export const sendArrMessageBot = async (
   }
 };
 
-// export const sendMessageBotHelp = async (chatId: number) => {
-//   return await sendArrMessageBot(chatId, objCommands?.help?.render?.());
-// };
-
-// export const executionCommandFunc = async (
-//   keyCommand: string,
-//   text: string,
-//   msg: TelegramBot.Message,
-//   skip?: number
-// ) => {
-//   const chatId = msg?.chat?.id;
-//   const currentCommand = objCommands?.[keyCommand] as ICommandItem;
-//   const dataStr = await currentCommand?.execution(text, msg, skip);
-//   const isHasExecution = dataStr && has(dataStr, "value");
-
-//   const newOptions = isHasExecution
-//     ? (dataStr?.data as returnExecution).optons
-//     : undefined;
-//   await sendArrMessageBot(
-//     chatId,
-//     dataStr?.data || returnValueCommand,
-//     newOptions
-//   );
-// };
+export const sendMessageBotHelp = async (chatId: number) => {
+  return await sendArrMessageBot(
+    chatId,
+    await (objCommands as IObjCommands)?.help?.render?.()
+  );
+};
 
 // export const sendBotThrowPage = async (
 //   text: string,

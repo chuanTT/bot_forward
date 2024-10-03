@@ -1,4 +1,4 @@
-import { FindManyOptions, FindOneOptions } from "typeorm";
+import { FindManyOptions, FindOneOptions, In } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Group } from "../entity/Group";
 import { ID_DB } from "../types";
@@ -9,6 +9,11 @@ import { paginationFunc, TakeAndSkip } from "../helpers";
 
 class groupServices {
   groupDB = AppDataSource.getRepository(Group);
+  finAllGroupIds = async (groupId: string[]) => {
+    return this.groupDB.findBy({
+      groupId: In(groupId),
+    });
+  };
 
   findAllPagination = async ({
     take,
@@ -39,14 +44,14 @@ class groupServices {
     });
   };
 
-  create = async (groupId: string | number, name?: string) => {
+  create = async (groupId: ID_DB, name?: string) => {
     const groupEntity = new Group();
     groupEntity.groupId = groupId?.toString();
     groupEntity.name = name;
     return this.groupDB.save(groupEntity);
   };
 
-  delete = async (groupId: string | number) => {
+  delete = async (groupId: ID_DB) => {
     return funcTransactionsQuery({
       callBack: async (queryRunner) => {
         const queryBuilder = queryRunner.manager.createQueryBuilder();

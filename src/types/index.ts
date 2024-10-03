@@ -6,7 +6,8 @@ import * as dayjs from "dayjs";
 export enum EnumCommand {
   "help" = "help",
   "start" = "start",
-  "setsource" = "setsource"
+  "setsource" = "setsource",
+  "readsource" = "readsource",
 }
 
 export enum EnumType {
@@ -21,8 +22,8 @@ export type ConfigTypeDate = dayjs.ConfigType;
 // type telegram
 export type SendMessageOptions = TelegramBot.SendMessageOptions;
 export type InlineKeyboardButton = TelegramBot.InlineKeyboardButton;
-export type UserTelegram = TelegramBot.User
-
+export type UserTelegram = TelegramBot.User;
+export type ChatType = TelegramBot.ChatType;
 
 export type ICommandExecution =
   | (string | returnExecution)[]

@@ -1,14 +1,13 @@
 import { config } from "dotenv";
-import { EnumCommand, EnumType } from "../types";
+import { ChatType, EnumCommand, EnumType } from "../types";
 import { SendMessageOptions } from "node-telegram-bot-api";
 config();
 
 export const PORT = process.env.PORT;
 
 export const TOKEN_TELEGRAM = process.env.TOKEN_TELEGRAM;
-export const HREF_MTTQ = process.env.HREF_MTTQ;
 export const TAKE = +(process.env.TAKE ?? 30);
-export const MAX_TAKE = 1000;
+export const MAX_TAKE = +(process.env.MAX_TAKE ?? 1000);
 
 export const INPUT_PAGE = "inputpage";
 export const NEXT_PAGE = "nextpage";
@@ -21,7 +20,7 @@ export const TAG_TELE = "@";
 
 export const arrIgnoreCommads = [EnumCommand.start, EnumCommand.help];
 
-export const arrTypeValid = [EnumType.supergroup, EnumType.group];
+export const arrTypeValid: ChatType[] = ["group", "supergroup", "channel"];
 
 export const optionDefaultSend: SendMessageOptions = {
   parse_mode: "HTML",

@@ -1,4 +1,4 @@
-import { FindOneOptions } from "typeorm";
+import { FindOneOptions, FindOptionsSelect } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Source } from "../entity/Source";
 import { ID_DB } from "../types";
