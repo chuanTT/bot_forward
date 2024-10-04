@@ -9,6 +9,7 @@ import {
   renderSetSourceTarget,
   renderSourceTarget,
   renderSTGroupsRelations,
+  renderStrongColor,
   strSource,
   strTarget,
 } from "../helpers";
@@ -19,6 +20,8 @@ import {
   SourceTargetType,
 } from "../types";
 import { getCache, removeCache } from "./cache";
+import sourcetargetService from "../services/sourcetarget.service";
+import { sendForwardBot } from "./InitializationTelebot";
 
 export type ICommand = keyof typeof EnumCommand;
 export type returnExecution = {
@@ -43,7 +46,30 @@ export const objCommands: IObjCommands = {
   startforward: {
     describe: "Bắt đầu lắng nghe khi có thay đổi từ các nhóm nguồn",
     render: async (msg) => {
-      return ''
+      const fullName = `${msg?.from?.first_name?.trim()} ${msg?.from?.last_name?.trim()}`;
+      return `Bắt đầu lắng nghe thay đổi của các nhóm nguồn của ${renderStrongColor(
+        fullName
+      )} - (${renderStrongColor(msg?.from?.username)}).\n\nGõ ${joinKeyCommand(
+        EnumCommand.cancel
+      )} để hủy thao tác.`;
+    },
+    execution: async (_, msg) => {
+      const userId = msg?.from?.id;
+      const groupId = msg?.chat?.id;
+      const results = await sourcetargetService.findOne(
+        userId,
+        groupId,
+        SourceTargetType.SOURCE
+      );
+
+      if (results) {
+        return await sendForwardBot(msg);
+      }
+
+      return {
+        data: [],
+        error: true,
+      };
     },
   },
 

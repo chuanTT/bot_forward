@@ -9,6 +9,7 @@ import {
   removeCache,
   sendMessageBotHelp,
   setAndDelCache,
+  setCache,
   TAG_TELE,
 } from "./configs";
 import { ignoreStartHelpFunc, myCommands } from "./helpers";
@@ -34,7 +35,11 @@ AppDataSource.initialize()
       const isTypeVaild = !arrTypeValid.includes(chat.type);
 
       if (msg.new_chat_title) {
-        await groupService.update(chat?.id, msg.new_chat_title, msg?.migrate_to_chat_id);
+        await groupService.update(
+          chat?.id,
+          msg.new_chat_title,
+          msg?.migrate_to_chat_id
+        );
       }
 
       if (text.charAt(0) === FIRST_COMMAD) {
@@ -44,10 +49,14 @@ AppDataSource.initialize()
         const isMathBot = arrCommand?.[1] === botInfo.username;
         const currentCommand = objCommands?.[command] as ICommandItem;
         const isKey = !!currentCommand?.execution;
-        if (!(command === EnumCommand.cancel)) {
-          setAndDelCache(userId, command, isKey);
-        }
+
         if ((isMathBot || isMathTag === -1) && currentCommand) {
+          const isListenForward = command === EnumCommand.startforward;
+          if (!(command === EnumCommand.cancel) && !isListenForward) {
+            setAndDelCache(userId, command, isKey);
+          } else if (isListenForward) {
+            setCache(userId, command, 0);
+          }
           const arrText = await currentCommand.render(msg);
           sendArrMessageBot(chat?.id, arrText);
           return await memberuseService.upsert(msg.from);
@@ -66,11 +75,11 @@ AppDataSource.initialize()
     botTelegram.on("left_chat_member", async (msg) => {
       const chatId = msg?.chat?.id;
       const admins = await botTelegram.getChatAdministrators(chatId);
-      const newAdmins = admins.filter((admin) => admin?.status === "creator")
+      const newAdmins = admins.filter((admin) => admin?.status === "creator");
       if (newAdmins?.length <= 0) {
         await groupService.delete(chatId);
       }
-    })
+    });
 
     // Lắng nghe sự kiện `my_chat_member` để phát hiện thay đổi quyền của bot
     botTelegram.on("my_chat_member", async (msg) => {

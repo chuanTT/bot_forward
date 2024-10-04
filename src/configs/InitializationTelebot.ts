@@ -1,7 +1,16 @@
 import * as TelegramBot from "node-telegram-bot-api";
 import { optionDefaultSend, TOKEN_TELEGRAM } from "./constant";
-import { ICommandExecution, SendMessageOptions } from "../types";
+import {
+  ICommandExecution,
+  ICommandItemRetrunExecution,
+  SendMessageOptions,
+  SourceTargetType,
+} from "../types";
 import { IObjCommands, objCommands, returnExecution } from "./telegram";
+import { SourceTarget } from "../entity/SourceTarget";
+import sourcetargetService from "../services/sourcetarget.service";
+import { removeCache } from "./cache";
+import { strTarget } from "../helpers";
 
 export const botTelegram = new TelegramBot(TOKEN_TELEGRAM, {
   polling: true,
@@ -56,27 +65,35 @@ export const sendMessageBotHelp = async (chatId: number) => {
   );
 };
 
-// export const sendBotThrowPage = async (
-//   text: string,
-//   chatId: TelegramBot.ChatId,
-//   total: string | number
-// ) => {
-//   const isNumber = checkNumber(text);
-//   const lastPage = calculatorLastPage(+total, TAKE);
-//   if (!isNumber) {
-//     await sendArrMessageBot(chatId, [
-//       defaultThrowPage,
-//       ...defaultCommandInputPage(lastPage),
-//     ]);
-//     return true;
-//   } else {
-//     if (+text > lastPage) {
-//       await sendArrMessageBot(chatId, [
-//         defaultThrowMaxPage,
-//         ...defaultCommandInputPage(lastPage),
-//       ]);
-//       return true;
-//     }
-//   }
-//   return undefined;
-// };
+export const sendForwardBot = async (
+  msg: TelegramBot.Message
+): Promise<ICommandItemRetrunExecution> => {
+  const userId = msg?.from?.id;
+  const chatId = msg?.chat?.id;
+  const messageId = msg?.message_id;
+  const targetIds = await sourcetargetService.findBy(
+    userId,
+    SourceTargetType.TARGET
+  );
+
+  if (targetIds?.length <= 0) {
+    removeCache(userId);
+    return {
+      data: `Vui lòng thêm nhóm ${strTarget} cho bot để thực hiện chức năng này.`,
+    };
+  }
+
+  console.log(msg)
+  // for (const targetId of targetIds) {
+  //   await botTelegram.forwardMessage(
+  //     targetId?.group?.groupId,
+  //     chatId,
+  //     messageId
+  //   );
+  // }
+
+  return {
+    data: [],
+    error: true,
+  };
+};

@@ -10,6 +10,25 @@ import { MAX_TAKE } from "../configs";
 class sourceServices {
   sourceTargetDB = AppDataSource.getRepository(SourceTarget);
 
+  findOne = async (
+    ownerId: ID_DB,
+    groupId: ID_DB,
+    type = SourceTargetType.SOURCE
+  ) => {
+    return this.sourceTargetDB.findOne({
+      where: {
+        ownerId: ownerId?.toString(),
+        group: {
+          groupId: groupId?.toString(),
+        },
+        type,
+      },
+      relations: {
+        group: true
+      }
+    });
+  };
+
   findBy = async (
     ownerId: ID_DB,
     type: SourceTargetType = SourceTargetType.SOURCE,
@@ -130,13 +149,12 @@ class sourceServices {
         ownerId: ownerId?.toString(),
         group: {
           groupId: sourceId?.toString(),
-          
         },
         type,
       },
     });
-    if(!data) return null
-    return this.sourceTargetDB.delete(data)
+    if (!data) return null;
+    return this.sourceTargetDB.delete(data);
   };
 
   delete = async (sourceId: ID_DB) => {
