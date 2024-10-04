@@ -34,7 +34,7 @@ AppDataSource.initialize()
       const isTypeVaild = !arrTypeValid.includes(chat.type);
 
       if (msg.new_chat_title) {
-        await groupService.update(chat?.id, msg.new_chat_title);
+        await groupService.update(chat?.id, msg.new_chat_title, msg?.migrate_to_chat_id);
       }
 
       if (text.charAt(0) === FIRST_COMMAD) {

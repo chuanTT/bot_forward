@@ -14,6 +14,7 @@ export enum EnumCommand {
   "settarget" = "settarget",
   "clearalltarget" = "clearalltarget",
   "clearonetarget" = "clearonetarget",
+  "startforward" = "startforward",
   "cancel" = "cancel"
 }
 

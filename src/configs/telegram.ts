@@ -40,6 +40,13 @@ export type ICommandItem = {
 export interface IObjCommands extends Record<ICommand, ICommandItem> {}
 
 export const objCommands: IObjCommands = {
+  startforward: {
+    describe: "Bắt đầu lắng nghe khi có thay đổi từ các nhóm nguồn",
+    render: async (msg) => {
+      return ''
+    },
+  },
+
   readsource: {
     describe: `Xem tất cả danh sách nhóm ${strSource}`,
     render: async (msg) => {

@@ -50,11 +50,12 @@ class groupServices {
     return this.groupDB.save(groupEntity);
   };
 
-  update = async (groupId: ID_DB, name?: string) => {
+  update = async (groupId: ID_DB, name?: string, newGroupId?: ID_DB) => {
     const currentUser = await this.getOneWhere(groupId);
     if (!currentUser) return null;
     return this.groupDB.update(currentUser?.uuid, {
       name,
+      groupId: (newGroupId || groupId)?.toString()
     });
   };
 
