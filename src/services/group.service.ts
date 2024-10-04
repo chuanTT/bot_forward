@@ -3,8 +3,7 @@ import { AppDataSource } from "../data-source";
 import { Group } from "../entity/Group";
 import { ID_DB } from "../types";
 import { funcTransactionsQuery } from "../helpers/transactionsQuery";
-import { Target } from "../entity/Target";
-import { Source } from "../entity/Source";
+import { SourceTarget } from "../entity/SourceTarget";
 import { paginationFunc, TakeAndSkip } from "../helpers";
 
 class groupServices {
@@ -51,19 +50,22 @@ class groupServices {
     return this.groupDB.save(groupEntity);
   };
 
+  update = async (groupId: ID_DB, name?: string) => {
+    const currentUser = await this.getOneWhere(groupId);
+    if (!currentUser) return null;
+    return this.groupDB.update(currentUser?.uuid, {
+      name,
+    });
+  };
+
   delete = async (groupId: ID_DB) => {
     return funcTransactionsQuery({
       callBack: async (queryRunner) => {
         const queryBuilder = queryRunner.manager.createQueryBuilder();
-        await queryBuilder
-          .delete()
-          .from(Target)
-          .where("groupId = :groupId", { groupId })
-          .execute();
 
         await queryBuilder
           .delete()
-          .from(Source)
+          .from(SourceTarget)
           .where("groupId = :groupId", { groupId })
           .execute();
 

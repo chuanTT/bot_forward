@@ -11,6 +11,13 @@ export const checkNumber = (num: string | number) => {
   return regex.test(num);
 };
 
+export const checkNumberGroup = (num: string | number) => {
+  if (!num) return false;
+  if (typeof num === "number") return true;
+  const regex = /^-?[0-9]+(\|?-?[0-9]+)*$/;
+  return regex.test(num);
+};
+
 export const calculatorLastPage = (total: number, take: number) =>
   Math.ceil(total / take);
 
@@ -53,13 +60,13 @@ export const checkStatusBot = (bot: boolean) => (bot ? 1 : 0);
 
 export const awaitAllFor = async <T, R>(
   data: T[],
-  callBack:  (item: T, index: number) => Promise<R>
+  callBack: (item: T, index: number) => Promise<R>
 ): Promise<R[]> => {
   const newData: R[] = [];
   let i = 0;
   for (const item of data) {
-    const result = await callBack(item, i)
-    if(result) {
+    const result = await callBack(item, i);
+    if (result) {
       newData.push(result);
     }
     i++;

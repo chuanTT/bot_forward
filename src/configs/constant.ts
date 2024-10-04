@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { ChatType, EnumCommand, EnumType } from "../types";
+import { ChatType, EnumCommand } from "../types";
 import { SendMessageOptions } from "node-telegram-bot-api";
 config();
 
@@ -14,11 +14,15 @@ export const NEXT_PAGE = "nextpage";
 export const PREV_PAGE = "prevpage";
 export const KEY_SPLIT = "_";
 export const EXE_SPLIT = "|";
+export const CONFIRM_CLEAR = "Tôi đồng ý";
 
 export const FIRST_COMMAD = "/";
 export const TAG_TELE = "@";
 
-export const arrIgnoreCommads = [EnumCommand.start, EnumCommand.help];
+export const arrIgnoreCommads = [
+  EnumCommand.start,
+  EnumCommand.help,
+];
 
 export const arrTypeValid: ChatType[] = ["group", "supergroup", "channel"];
 

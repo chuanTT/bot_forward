@@ -3,19 +3,22 @@ import {
   joinCommand,
   joinCommandsIgnoreStartHelp,
   joinFullName,
-  renderGroupsChunk,
-  renderGroupsRelationsChunk,
-  renderStrongColor,
+  joinKeyCommand,
+  renderCommandClearAll,
+  renderCommandClearOne,
+  renderSetSourceTarget,
+  renderSourceTarget,
+  renderSTGroupsRelations,
+  strSource,
+  strTarget,
 } from "../helpers";
 import {
   EnumCommand,
   ICommandItemRetrunExecution,
   SendMessageOptions,
+  SourceTargetType,
 } from "../types";
-import groupService from "../services/group.service";
-import { EXE_SPLIT, MAX_TAKE } from "./constant";
-import { In } from "typeorm";
-import sourceService from "../services/source.service";
+import { getCache, removeCache } from "./cache";
 
 export type ICommand = keyof typeof EnumCommand;
 export type returnExecution = {
@@ -37,52 +40,41 @@ export type ICommandItem = {
 export interface IObjCommands extends Record<ICommand, ICommandItem> {}
 
 export const objCommands: IObjCommands = {
-  setsource: {
-    describe: "thêm nhóm mà bot đã tham gia vào nguồn nhóm",
-    render: async () => {
-      const { data } = await groupService.findAllPagination({});
-      return [
-        `Nhập nhóm muốn làm nguồn. Các nhóm cách nhau "${EXE_SPLIT}"\n\nLưu ý: ${renderStrongColor(
-          `Danh sách nhóm nguồn tối đa có thể hỗ trợ ${MAX_TAKE} nhóm`
-        )}`,
-        ...renderGroupsChunk(data, true),
-      ];
-    },
-    execution: async (text, msg) => {
-      const arrGroupIds = text?.split(EXE_SPLIT);
-      const userId = msg.from.id;
-      const maxCountSource = await sourceService.countBy(userId);
-      if (maxCountSource >= MAX_TAKE)
-        return {
-          data: [
-            `Bot đã vượt quá ${renderStrongColor(
-              MAX_TAKE
-            )} nhóm cho phép làm danh sách nguồn`,
-          ],
-          error: true,
-        };
-      const data = await sourceService.insert(
-        arrGroupIds,
-        userId,
-        maxCountSource
-      );
-      const error = !data || (data && data?.length <= 0);
-      const msgChat = error
-        ? [
-            "Bot có thể không được tham gia vào nhóm hoặc đã có trong danh sách nguồn.",
-          ]
-        : ["Thêm danh sách nhóm thành công."];
-      return { data: msgChat, error };
+  readsource: {
+    describe: `Xem tất cả danh sách nhóm ${strSource}`,
+    render: async (msg) => {
+      return renderSTGroupsRelations(msg?.from?.id, SourceTargetType.SOURCE);
     },
   },
 
-  readsource: {
-    describe: "Xem tất cả danh sách nhóm nguồn",
-    render: async (msg) => {
-      const results = await sourceService.findBy(msg?.from?.id);
-      return renderGroupsRelationsChunk(results, true);
+  setsource: {
+    describe: "thêm nhóm mà bot đã tham gia vào nguồn nhóm",
+    render: async () => renderSourceTarget(),
+    execution: async (text, msg) => {
+      return renderSetSourceTarget(text, msg, SourceTargetType.SOURCE);
     },
   },
+
+  clearallsource: renderCommandClearAll(),
+  clearonesource: renderCommandClearOne(),
+
+  readtarget: {
+    describe: `Xem tất cả danh sách nhóm ${strTarget}`,
+    render: async (msg) => {
+      return renderSTGroupsRelations(msg?.from?.id, SourceTargetType.TARGET);
+    },
+  },
+
+  settarget: {
+    describe: `thêm nhóm mà bot đã tham gia vào ${strTarget}`,
+    render: async () => renderSourceTarget(strTarget),
+    execution: async (text, msg) => {
+      return renderSetSourceTarget(text, msg, SourceTargetType.TARGET);
+    },
+  },
+
+  clearalltarget: renderCommandClearAll(SourceTargetType.TARGET),
+  clearonetarget: renderCommandClearOne(SourceTargetType.TARGET),
 
   help: {
     describe: "Xem trợ giúp",
@@ -97,6 +89,21 @@ export const objCommands: IObjCommands = {
       return `Xin chào, <b>${fullName}</b>!!!\n\n${joinCommand(
         EnumCommand.help
       )}`;
+    },
+  },
+
+  cancel: {
+    describe: "Hủy bỏ hoạt động hiện tại",
+    render: async (msg) => {
+      const userId = msg.from.id;
+      const command = getCache(userId);
+      if (!command) {
+        return `Không có lệnh hoạt động để hủy bỏ. Dù sao thì tôi cũng không làm gì cả.`;
+      }
+      removeCache(userId);
+      return `Lệnh ${command} đã bị hủy. Tôi có thể làm gì khác cho bạn không?\n\nGửi ${joinKeyCommand(
+        EnumCommand.help
+      )} để biết danh sách các lệnh.`;
     },
   },
 };

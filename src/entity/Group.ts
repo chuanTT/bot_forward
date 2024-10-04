@@ -1,6 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Source } from "./Source";
-import { Target } from "./Target";
+import { SourceTarget } from "./SourceTarget";
 
 @Entity()
 export class Group {
@@ -13,9 +12,7 @@ export class Group {
   @Column("varchar", { default: null, nullable: true })
   name: string;
 
-  @OneToMany(type => Source, source => source.group)
-  sources: Source[];
+  @OneToMany(type => SourceTarget, sourceTarget => sourceTarget.group)
+  sourceTarget: SourceTarget[];
 
-  @OneToMany(type => Target, target => target.group)
-  targets: Target[];
 }
