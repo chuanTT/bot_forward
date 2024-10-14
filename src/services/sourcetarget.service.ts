@@ -24,8 +24,8 @@ class sourceServices {
         type,
       },
       relations: {
-        group: true
-      }
+        group: true,
+      },
     });
   };
 
@@ -116,6 +116,24 @@ class sourceServices {
     }
     return this.sourceTargetDB.update(ownerId, {
       group,
+    });
+  };
+
+  updateGroupId = async (ownerId: ID_DB, groupId: ID_DB, groupNewId: ID_DB) => {
+    const newGroupId = groupId?.toString();
+    const findSourceTarget = await this.sourceTargetDB.findOne({
+      where: {
+        ownerId: ownerId?.toString(),
+        group: {
+          groupId: newGroupId,
+        },
+      },
+    });
+    if (!findSourceTarget) return null;
+    return this.sourceTargetDB.update(findSourceTarget?.uuid, {
+      group: {
+        groupId: groupNewId?.toString(),
+      },
     });
   };
 

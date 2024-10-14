@@ -46,12 +46,35 @@ export const objCommands: IObjCommands = {
   startforward: {
     describe: "Bắt đầu lắng nghe khi có thay đổi từ các nhóm nguồn",
     render: async (msg) => {
+      const userId = msg?.from?.id;
+      const groupId = msg?.chat?.id;
+      const results = await sourcetargetService.findOne(
+        userId,
+        groupId,
+        SourceTargetType.SOURCE
+      );
+
       const fullName = `${msg?.from?.first_name?.trim()} ${msg?.from?.last_name?.trim()}`;
-      return `Bắt đầu lắng nghe thay đổi của các nhóm nguồn của ${renderStrongColor(
-        fullName
-      )} - (${renderStrongColor(msg?.from?.username)}).\n\nGõ ${joinKeyCommand(
-        EnumCommand.cancel
-      )} để hủy thao tác.`;
+      let messages = [
+        `Bắt đầu lắng nghe thay đổi của các nhóm nguồn của ${renderStrongColor(
+          fullName
+        )} - (${renderStrongColor(
+          `@${msg?.from?.username}`
+        )}).\n\nGõ ${joinKeyCommand(EnumCommand.cancel)} để hủy thao tác.`,
+      ];
+
+      if (!results) {
+        const msgCancel = await objCommands[EnumCommand.cancel].render(msg);
+        messages.push(
+          `Vui lòng lắng nghe thay đổi của trong số các danh sách nhóm ${strSource}`
+        );
+        messages = [
+          ...messages,
+          ...(typeof msgCancel === "string" ? [msgCancel] : msgCancel),
+        ];
+      }
+
+      return messages;
     },
     execution: async (_, msg) => {
       const userId = msg?.from?.id;
@@ -65,11 +88,6 @@ export const objCommands: IObjCommands = {
       if (results) {
         return await sendForwardBot(msg);
       }
-
-      return {
-        data: [],
-        error: true,
-      };
     },
   },
 

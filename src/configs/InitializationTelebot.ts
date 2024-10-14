@@ -3,11 +3,11 @@ import { optionDefaultSend, TOKEN_TELEGRAM } from "./constant";
 import {
   ICommandExecution,
   ICommandItemRetrunExecution,
+  IMessage,
   SendMessageOptions,
   SourceTargetType,
 } from "../types";
 import { IObjCommands, objCommands, returnExecution } from "./telegram";
-import { SourceTarget } from "../entity/SourceTarget";
 import sourcetargetService from "../services/sourcetarget.service";
 import { removeCache } from "./cache";
 import { strTarget } from "../helpers";
@@ -65,8 +65,52 @@ export const sendMessageBotHelp = async (chatId: number) => {
   );
 };
 
+// check send
+export const senDocumentBot = async (
+  chatId: TelegramBot.ChatId,
+  msg: IMessage
+) => {
+  if (msg.document) {
+    const file_id = msg.document.file_id;
+    const caption = msg.caption;
+    const thumbnailId = msg.document.thumb.file_id;
+    botTelegram.sendDocument(chatId, file_id, {
+      caption,
+      parse_mode: "HTML",
+      thumbnail: thumbnailId,
+    });
+  }
+};
+
+export const sendPhotoBot = async (
+  chatId: TelegramBot.ChatId,
+  msg: IMessage
+) => {
+  if (msg?.photo) {
+    const photo = msg.photo;
+    const caption = msg.caption;
+    const originalFile = photo?.[photo?.length - 1];
+
+    botTelegram.sendPhoto(chatId, originalFile?.file_id, {
+      caption,
+      parse_mode: "HTML",
+    });
+  }
+};
+
+export const sendMessage = async (
+  chatId: TelegramBot.ChatId,
+  msg: IMessage
+) => {
+  if (msg?.text) {
+    await sendMessageBot(chatId, msg.text);
+  }
+};
+
+const objSendTelegram = {};
+
 export const sendForwardBot = async (
-  msg: TelegramBot.Message
+  msg: IMessage
 ): Promise<ICommandItemRetrunExecution> => {
   const userId = msg?.from?.id;
   const chatId = msg?.chat?.id;
@@ -83,14 +127,21 @@ export const sendForwardBot = async (
     };
   }
 
-  console.log(msg)
-  // for (const targetId of targetIds) {
-  //   await botTelegram.forwardMessage(
-  //     targetId?.group?.groupId,
-  //     chatId,
-  //     messageId
-  //   );
-  // }
+  for (const targetId of targetIds) {
+    const groupId = targetId?.group?.groupId;
+    if (msg?.photo) {
+      await sendPhotoBot(groupId, msg);
+    } else if (msg?.document) {
+      await senDocumentBot(groupId, msg);
+    } else if (msg.text) {
+      await sendMessageBot(groupId, msg.text);
+    }
+    // await botTelegram.forwardMessage(
+    //   targetId?.group?.groupId,
+    //   chatId,
+    //   messageId
+    // );
+  }
 
   return {
     data: [],
